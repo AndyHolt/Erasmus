@@ -32,7 +32,6 @@ for c in passage_html.find_all(class_="chapternum"):
                          r'\\cn{\1}',
                          chap_no,
                          flags=re.UNICODE)
-    print ltx_chap_no
     c.string = ltx_chap_no
 
 # latexify verse numbers
@@ -42,7 +41,6 @@ for v in passage_html.find_all(class_="versenum"):
                           r'\\vn{\1}',
                           verse_no,
                           flags=re.UNICODE)
-    print ltx_verse_no
     v.string = ltx_verse_no
 
 # extract text from html
