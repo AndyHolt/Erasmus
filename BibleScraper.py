@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/bin/python
 """
 Get a Bible passage from Bible Gateway.
 """
@@ -8,7 +8,12 @@ Get a Bible passage from Bible Gateway.
 import requests
 from bs4 import BeautifulSoup
 import re
+import click
 
+@click.command()
+@click.option('-p', '--passage', default='Genesis 1:1',
+              help='Bible passage to get.')
+@click.option('-v', '--version', default='ESVUK', help='Translation(s) to get.')
 def bible_scraper(passage, version):
     """Get a Bible passage from BibleGateway.com.
 
@@ -80,3 +85,6 @@ def bible_scraper(passage, version):
                 f.write('\n')
                 f.write('\n')
             f.write(paragraph_text[-1].encode('utf8'))
+
+if __name__ == '__main__':
+    bible_scraper()
