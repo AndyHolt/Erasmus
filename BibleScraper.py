@@ -14,6 +14,15 @@ import click
 @click.option('-p', '--passage', default='Genesis 1:1',
               help='Bible passage to get.')
 @click.option('-v', '--version', default='ESVUK', help='Translation(s) to get.')
+def bible_scraper_cli(passage, version):
+    """Get a Bible passage from BibleGateway.com.
+
+    Get's PASSAGE in translation VERSION where VERSION may be a semi-colon
+    separated list of versions within a string.
+
+    bible_scraper_cli provides a command line interface to bible_scraper"""
+    bible_scraper(passage, version)
+
 def bible_scraper(passage, version):
     """Get a Bible passage from BibleGateway.com.
 
@@ -87,4 +96,4 @@ def bible_scraper(passage, version):
             f.write(paragraph_text[-1].encode('utf8'))
 
 if __name__ == '__main__':
-    bible_scraper()
+    bible_scraper_cli()
