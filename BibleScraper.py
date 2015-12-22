@@ -46,8 +46,7 @@ def bible_scraper(passage, version):
     page_html = BeautifulSoup(r.text, "html.parser")
     translations_long_passage_list = page_html.find_all(class_="passage-text")
 
-    loopcount = 0
-    for translation in translations_long_passage_list:
+    for index, translation in enumerate(translations_long_passage_list):
         passage = translation.find_all("p")
 
         # prepare list for paragraph texts
@@ -86,8 +85,7 @@ def bible_scraper(passage, version):
             paragraph_text.append(paragraph.get_text())
 
         # save to file
-        filename = passage_name + versions_list[loopcount] + '.txt'
-        loopcount += 1
+        filename = passage_name + versions_list[index] + '.txt'
         with open(filename, 'a') as f:
             for paragraph in paragraph_text[:-1]:
                 f.write(paragraph.encode('utf8'))
