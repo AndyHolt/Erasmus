@@ -5,9 +5,9 @@ Get a Bible passage from Bible Gateway.
 # Author: Andy Holt
 # Date: Sat 03 Oct 2015 18:35
 
+import re
 import requests
 from bs4 import BeautifulSoup
-import re
 import click
 
 @click.command()
