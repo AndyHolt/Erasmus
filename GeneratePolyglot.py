@@ -26,6 +26,7 @@ def generate_polyglot_cli(passage, version):
     directory. These should be generated using BibleScraper.py.
 
     generate_polyglot_cli provides a command line interface to generate_polyglot"""
+    generate_polyglot(passage, version)
 
 def generate_polyglot(passage, version):
     """Generate a polyglot LaTeX file of PASSAGE in VERSIONS.
@@ -62,6 +63,9 @@ def generate_polyglot(passage, version):
                                            block_end_string = '%}',
                                            variable_start_string = '%{{',
                                            variable_end_string = '%}}',
+                                           trim_blocks = True,
+                                           lstrip_blocks = True,
+                                           keep_trailing_newline = True,
                                            loader = jinja2.FileSystemLoader('.'))
 
     template = polyglot_renderer.get_template('polyglot_template.tex')
