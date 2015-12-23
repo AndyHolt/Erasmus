@@ -82,7 +82,7 @@ def bible_scraper(passage, version):
                 v.string = ltx_verse_no
 
             # if paragraph is poetry, latexify it as poetry
-            if paragraph.parent['class'] == ['poetry']:
+            if 'poetry' in paragraph.parent['class']:
                 # add \begin{verse} command as first thing in paragraph
                 paragraph.contents[0].insert_before("\\begin{verse}\n")
                 # add \end{verse} command as last thing in paragraph
