@@ -81,6 +81,20 @@ def bible_scraper(passage, version):
                                       flags=re.UNICODE)
                 v.string = ltx_verse_no
 
+            # if paragraph is poetry, latexify it as poetry
+            if paragraph.parent['class'] == ['poetry']:
+                # add \begin{verse} command as first thing in paragraph
+                paragraph.contents[0].insert_before("\\begin{verse}\n")
+                # add \end{verse} command as last thing in paragraph
+                paragraph.contents[-1].insert_after(" \\\\\n\\end{verse}")
+                # latexify linebreaks
+                [br.replace_with(" \\\\\n") for br in paragraph.find_all("br")]
+                # latexify indents
+                # for indent in paragraph.find_all("span", class_="indent-1"):
+                #     indent.contents[0].insert_before("\\vin ")
+                for indt in paragraph.find_all("span", class_="indent-1-breaks"):
+                    indt.replace_with("\\hspace{1.5em}")
+
             # extract text from html
             paragraph_text.append(paragraph.get_text())
 
