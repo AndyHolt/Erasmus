@@ -8,6 +8,7 @@ Get a Bible passage from Bible Gateway.
 import re
 import requests
 from bs4 import BeautifulSoup
+from bs4.element import Tag as bs4Tag
 import click
 
 @click.command()
@@ -46,22 +47,39 @@ def bible_scraper(passage, version):
     page_html = BeautifulSoup(r.text, "html.parser")
     translations_long_passage_list = page_html.find_all(class_="passage-text")
 
+    # prepare list for translation texts
+    translation_texts = []
+
+    # prepare list for first-verse-in-paragraph lists
+    first_verse_in_paragraph = []
+
     for index, translation in enumerate(translations_long_passage_list):
         passage = translation.find_all("p")
 
         # prepare list for paragraph texts
         paragraph_text = []
 
+        # prepare list for first-verse-in-paragraphs
+        first_verse_this_translation = []
+
         # for each paragrah (except last one, which is just copyright statement),
         # reformat
         for paragraph in passage[:-1]:
             # remove crossreferences
             # [todo] - add crossreferences as optional paratext element
-            [c.decompose() for c in paragraph.find_all("sup", class_="crossreference")]
+            ([c.decompose()
+              for c in paragraph.find_all("sup", class_="crossreference")])
 
             # remove footnotes
             # [todo] - add footnotes as optional paratext element
-            [f.decompose() for f in paragraph.find_all("sup", class_="footnote")]
+            ([f.decompose()
+              for f in paragraph.find_all("sup", class_="footnote")])
+
+            # for each paragraph, put first verse number in list
+            if (isinstance(paragraph.next_element.next_element, bs4Tag)
+                and 'versenum' in paragraph.next_element.next_element['class']):
+                first_verse_this_translation.append(
+                    int(paragraph.next_element.next_element.string))
 
             # latexify chapter numbers
             for c in paragraph.find_all(class_="chapternum"):
@@ -98,10 +116,29 @@ def bible_scraper(passage, version):
             # extract text from html
             paragraph_text.append(paragraph.get_text())
 
+        # append this translation to translation texts
+        translation_texts.append(paragraph_text)
+
+        # append this translation's first-verse-in-paragraphs to full list
+        first_verse_in_paragraph.append(first_verse_this_translation)
+
+    # find intersection of first-verse-in-paragraph lists
+    alignment_verses = set(first_verse_in_paragraph[0])
+    for aset in first_verse_in_paragraph[1:]:
+        alignment_verses = alignment_verses.intersection(set(aset))
+    print alignment_verses
+
+    # write a file with verse numbers at which to align polyglot
+    alignments_file_name = passage_name + "-".join(versions_list) + '.aln'
+    with open(alignments_file_name, 'a') as f:
+        for alignment_verse in alignment_verses:
+            f.write(str(alignment_verse) + "\n")
+
+    for index, translation in enumerate(translations_long_passage_list):
         # save to file
         filename = passage_name + versions_list[index] + '.txt'
         with open(filename, 'a') as f:
-            for paragraph in paragraph_text[:-1]:
+            for paragraph in translation_texts[index][:-1]:
                 f.write(paragraph.encode('utf8'))
                 f.write('\n')
                 f.write('\n')

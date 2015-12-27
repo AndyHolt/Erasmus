@@ -45,18 +45,40 @@ def generate_polyglot(passage, version):
     meta = {'filename': passage_name + 'Polyglot.tex',
             'passagename': passage,
             'datestamp': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'no_of_translations': len(version_list)}
+            'no_of_translations': len(version_list),
+            'translations': version_list}
 
     input_files = [passage_name + v + '.txt' for v in version_list]
 
+    # get alignments from file
+    alignments_file_name = passage_name + "-".join(version_list) + '.aln'
+    with open(alignments_file_name, 'r') as f:
+        alignments = f.readlines()
+    # strip '\n' from alignment strings
+    for index, aln in enumerate(alignments):
+        alignments[index] = re.sub(r'\n', '', aln)
+
     # get the texts from the input files
     # [todo] - first check the files exist?
+    trans_split_regexp = '|'.join(['(\\\\vn\{' + r + '\})' for r in alignments])
+    # get text from input files
     translations = []
     for index, file in enumerate(input_files):
         with codecs.open(file, mode='r', encoding='utf-8') as f:
-            translation = {'name': version_list[index],
-                           'text': f.read()}
-        translations.append(translation)
+            # split translation into aligned paragraphs
+            a_translation = re.split(trans_split_regexp,
+                                     f.read())
+            # remove None values caused by regexp
+            a_translation = filter(None, a_translation)
+            # reattach verse numbers to their paragraphs (split off by regexp
+            # split)
+            for vn in range(len(a_translation) / 2):
+                a_translation[vn+1] = (a_translation[vn+1]
+                                               + a_translation[vn+2])
+                a_translation.pop(vn+2)
+            translations.append(a_translation)
+
+    aligned_paragraphs = zip(*translations)
 
     # create LaTeX document
     polyglot_renderer = jinja2.Environment(block_start_string = '%{',
@@ -71,7 +93,8 @@ def generate_polyglot(passage, version):
     template = polyglot_renderer.get_template('polyglot_template.tex')
 
     with codecs.open(meta['filename'], mode='w', encoding='utf-8') as f:
-        f.write(template.render(meta=meta, translations = translations))
+        f.write(template.render(meta=meta,
+                                aligned_paragraphs = aligned_paragraphs))
 
 if __name__ == '__main__':
     generate_polyglot_cli()

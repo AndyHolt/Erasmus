@@ -14,12 +14,25 @@
 \maketitle
 
 \begin{paracol}{%{{ meta.no_of_translations %}}}
-%{ for translation in translations %}
-    % %{{ translation.name %}}
-    %{{ translation.text|wordwrap(width=75,break_long_words=false)|indent %}}
+%{ for translation in meta.translations %}
+    {\centering\underline{\bfseries %{{ translation %}} }\par}
     %{ if not loop.last %}
     \switchcolumn
+    %{ else %}
+    \switchcolumn*
     %{ endif %}
+%{ endfor %}
+%{ for paragraph in aligned_paragraphs %}
+%{ set outer_loop = loop %}
+%{ for translation in paragraph %}
+    % %{{ meta.translations[loop.index0] %}}
+    %{{ translation|wordwrap(width=75,break_long_words=false)|indent %}}
+    %{ if not loop.last %}
+    \switchcolumn
+    %{ elif not outer_loop.last %}
+    \switchcolumn*
+    %{ endif %}
+%{ endfor %}
 %{ endfor %}
 \end{paracol}
 
