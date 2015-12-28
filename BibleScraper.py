@@ -134,15 +134,15 @@ def bible_scraper(passage, version):
         for alignment_verse in alignment_verses:
             f.write(str(alignment_verse) + "\n")
 
-    for index, translation in enumerate(translations_long_passage_list):
+    for index, translation in enumerate(translation_texts):
         # save to file
         filename = passage_name + versions_list[index] + '.txt'
         with open(filename, 'a') as f:
-            for paragraph in translation_texts[index][:-1]:
+            for paragraph in translation[:-1]:
                 f.write(paragraph.encode('utf8'))
                 f.write('\n')
                 f.write('\n')
-            f.write(paragraph_text[-1].encode('utf8'))
+            f.write(translation[-1].encode('utf8'))
 
 if __name__ == '__main__':
     bible_scraper_cli()
