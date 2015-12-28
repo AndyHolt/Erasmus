@@ -60,70 +60,27 @@ def generate_polyglot(passage, version):
 
     # get the texts from the input files
     # [todo] - first check the files exist?
-    # trans_split_regexp = (r'(\\begin\{verse\})*\n*('
-    #                       + '|'.join(['(\\\\vn\{' + r + '\})'
-    #                                   for r in alignments])) + ')'
     trans_split_regexp = '|'.join(['(\\\\vn\{' + r + '\})' for r in alignments])
 
-    # print trans_split_regexp
     # get text from input files
     translations = []
     for index, file in enumerate(input_files):
         with codecs.open(file, mode='r', encoding='utf-8') as f:
             # split translation into aligned paragraphs
-            # print re.findall(trans_split_regexp, f.read())
             a_translation = re.split(trans_split_regexp,
                                      f.read())
             # remove None values caused by regexp
+            # [todo] - find way of not creating Nones in regexp split?
             a_translation = filter(None, a_translation)
 
-            # print a_translation
             # if any new-paragraph-verses are also starts of verses, re-attach
             # '\begin{verse}' to the correct verse
-
-            # new plan of approach (since getting double matches with current regexp):
-            # - revert to previous regexp
-            # - search end of string for each substr, if it's \begin{verse}, cut
-            # that off and add it to the following element, which should be it's
-            # verse number.
-
             for index, substr in enumerate(a_translation):
                 if re.search(r'\\begin\{verse\}\n$', substr):
-                    print 'found'
-                    print substr
-
-                    match = re.search(r'\\begin\{verse\}\n$', substr)
-                    print 'matching string is:'
-                    print match.group(0)
-                    a_translation[index] = re.sub(r'\\begin\{verse\}\n$', '', substr)
+                    a_translation[index] = re.sub(r'\\begin\{verse\}\n$',
+                                                  '', substr)
                     a_translation[index+1] = ('\\begin{verse}\n'
                                               + a_translation[index+1])
-                    
-
-                    print 'after sub, substr is:'
-                    print a_translation[index]
-                    print 'and next substr is:'
-                    print a_translation[index+1]
-
-            # for index, substr in enumerate(a_translation):
-            #     if re.match(r'\\begin\{verse\}', substr):
-            #         print 'found a match:'
-            #         print a_translation[index-1]
-            #         print a_translation[index]
-            #         print a_translation[index+1]
-            #         print a_translation[index+2]
-            #         a_translation[index] = (a_translation[index] +
-            #                                 a_translation[index+1])
-            #         print 'performed the join'
-            #         print a_translation[index]
-            #         print a_translation[index+1]
-            #         a_translation.pop(index+1)
-            #         print 'post-pop'
-            #         print a_translation[index-1]
-            #         print a_translation[index]
-            #         print a_translation[index+1]
-            #         print a_translation[index+2]
-
 
             # reattach verse numbers to their paragraphs (split off by regexp
             # split)
