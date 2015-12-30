@@ -15,16 +15,48 @@ import click
 @click.option('-p', '--passage', default='Genesis 1:1',
               help='Bible passage to get.')
 @click.option('-v', '--version', default='ESVUK', help='Translation(s) to get.')
-def bible_scraper_cli(passage, version):
+@click.option('-m', '--mode', default='latex', help='Type of files to produce.')
+@click.option('--verbose', is_flag=True, help='Output status information.')
+def bible_scraper_cli(passage, version, mode, verbose):
     """Get a Bible passage from BibleGateway.com.
 
     Get's PASSAGE in translation VERSION where VERSION may be a semi-colon
     separated list of versions within a string.
 
     bible_scraper_cli provides a command line interface to bible_scraper"""
-    bible_scraper(passage, version)
 
-def bible_scraper(passage, version):
+    bible_scraper(passage, version, mode, verbose)
+
+def bible_scraper(passage, version, mode, verbose):
+    """
+    Get a Bible passage from BibleGateway.com.
+
+    Get's PASSAGE in translation VERSION where VERSION may be a semi-colon
+    separated list of versions within a string. Writes to files in format
+    selected through MODE.
+
+    Arguments:
+    - `passage`: Passage to get from Bible Gateway.
+    - `version`: Translation to fetch.
+    - `mode`: latex files (for polygot generation) or plain text by verse.
+    """
+
+    # fetch html from bible gateway
+    page = fetch_bible_gateway_page(passage, version, verbose)
+
+    page_html = page['page_html']
+    passage_name = page['passage_name']
+    versions_list = page['versions_list']
+
+    if mode == 'latex':
+        scrape_page_to_latexified_text(page_html, passage_name, versions_list, verbose)
+    elif mode == 'text':
+        scrape_page_to_versified_text(page_html, passage, versions_list, verbose)
+    else:
+        # [todo] - raise an error here
+        print 'invalid mode requested.'
+
+def fetch_bible_gateway_page(passage, version, verbose):
     """Get a Bible passage from BibleGateway.com.
 
     Get's PASSAGE in translation VERSION where VERSION may be a semi-colon
@@ -38,6 +70,10 @@ def bible_scraper(passage, version):
     passage_name = re.sub(r':', r'_', passage_name, flags=re.UNICODE)
     passage_name = re.sub(r'\s', r'', passage_name, flags=re.UNICODE)
 
+    # if verbose, say getting passage
+    if verbose:
+        print 'Fetching ' + passage + ' from BibleGateway.com.'
+
     # get page html code from biblegateway.com
     options = {'search': passage, 'version': version}
     url = 'https://www.biblegateway.com/passage/'
@@ -45,6 +81,23 @@ def bible_scraper(passage, version):
 
     # parse html and extract the bible text
     page_html = BeautifulSoup(r.text, "html.parser")
+
+    # return page_html and metadata to caller function
+    results = {'page_html': page_html,
+               'passage_name': passage_name,
+               'versions_list': versions_list}
+    return results
+
+def scrape_page_to_latexified_text(page_html, passage_name, versions_list, verbose):
+    """
+    Extract passage text from PAGE_HTML, latexify and write to files.
+
+    Arguments:
+    - `page_html`: BeautifulSoup object containing html from Bible Gateway
+                   search.
+    - `passage_name`: canonical format of Bible book and chapter string
+    - `versions_list`: caonincal format of Bible translations list
+    """
     translations_long_passage_list = page_html.find_all(class_="passage-text")
 
     # prepare list for translation texts
@@ -136,12 +189,76 @@ def bible_scraper(passage, version):
     for index, translation in enumerate(translation_texts):
         # save to file
         filename = passage_name + versions_list[index] + '.txt'
+        if verbose:
+            print 'Writing to ' + filename + '.'
         with open(filename, 'a') as f:
             for paragraph in translation[:-1]:
                 f.write(paragraph.encode('utf8'))
                 f.write('\n')
                 f.write('\n')
             f.write(translation[-1].encode('utf8'))
+
+def scrape_page_to_versified_text(page_html, passage_name, versions_list, verbose):
+    """
+    Extract passage text from PAGE_HTML and write to grep-able text files.
+
+    Each chapter should be a single text file, in a directory by book.
+
+    Arguments:
+    - `page_html`: BeautifulSoup object containing html from Bible Gateway
+                   search. Should only pass whole chapter in single
+                   translation.
+    - `passage_name`: canonical format of Bible book and chapter string
+    - `versions_list`: caonincal format of Bible translations list
+    """
+
+    # remove spaces from passage name for saving to file
+    passage_name = re.sub(r'\s', r'', passage_name, flags=re.UNICODE)
+
+    # get text from html page
+    long_passage = page_html.find(class_="passage-text")
+    passage = long_passage.find_all("p")
+
+    # prepare list for paragraph texts
+    passage_text = []
+
+    # for each paragrah (except last one, which is just copyright statement),
+    # reformat
+    for paragraph in passage[:-1]:
+        # remove crossreferences
+        # [todo] - add crossreferences as optional paratext element
+        ([c.decompose()
+          for c in paragraph.find_all("sup", class_="crossreference")])
+
+        # remove footnotes
+        # [todo] - add footnotes as optional paratext element
+        ([f.decompose()
+          for f in paragraph.find_all("sup", class_="footnote")])
+
+        # set chapter number to 1, since that's the verse number
+        for c in paragraph.find_all(class_="chapternum"):
+            c.string = '1 '
+
+        # add newline after each verse
+        for v in paragraph.find_all(class_="versenum"):
+            verse_no = v.string
+            new_verse_string = re.sub(r'([0-9]+)\s',
+                                      r'\n\1 ',
+                                      verse_no,
+                                      flags=re.UNICODE)
+            v.string = new_verse_string
+
+        # extract text from html
+        passage_text.append(paragraph.get_text())
+
+
+    # save to file
+    filename = passage_name + '.txt'
+    if verbose:
+        print 'Writing to ' + filename + '.'
+    with open(filename, 'a') as f:
+        for paragraph in passage_text:
+            f.write(paragraph.encode('utf8'))
 
 if __name__ == '__main__':
     bible_scraper_cli()
