@@ -126,7 +126,6 @@ def bible_scraper(passage, version):
     alignment_verses = set(first_verse_in_paragraph[0])
     for aset in first_verse_in_paragraph[1:]:
         alignment_verses = alignment_verses.intersection(set(aset))
-    print alignment_verses
 
     # write a file with verse numbers at which to align polyglot
     alignments_file_name = passage_name + "-".join(versions_list) + '.aln'
