@@ -88,11 +88,14 @@ def generate_polyglot(passage, version):
 
             # reattach verse numbers to their paragraphs (split off by regexp
             # split)
-            # print a_translation
-            for vn in range(len(a_translation) / 2):
-                a_translation[vn+1] = (a_translation[vn+1]
-                                               + a_translation[vn+2])
-                a_translation.pop(vn+2)
+            # print(a_translation)
+            
+            if len(a_translation) > 2:
+                for vn in range(len(a_translation) / 2):
+                    # print(vn)
+                    a_translation[vn+1] = (a_translation[vn+1]
+                                           + a_translation[vn+2])
+                    a_translation.pop(vn+2)
             translations.append(a_translation)
 
     aligned_paragraphs = zip(*translations)
