@@ -54,7 +54,8 @@ def bible_scraper(passage, version, mode, verbose):
         scrape_page_to_versified_text(page_html, passage, versions_list, verbose)
     else:
         # [todo] - raise an error here
-        print 'invalid mode requested.'
+        # print('invalid mode requested.')
+        print 'invalid mode requiested.'
 
 def fetch_bible_gateway_page(passage, version, verbose):
     """Get a Bible passage from BibleGateway.com.
@@ -72,6 +73,7 @@ def fetch_bible_gateway_page(passage, version, verbose):
 
     # if verbose, say getting passage
     if verbose:
+        # print('Fetching ' + passage + ' from BibleGateway.com.')
         print 'Fetching ' + passage + ' from BibleGateway.com.'
 
     # get page html code from biblegateway.com
@@ -98,6 +100,11 @@ def scrape_page_to_latexified_text(page_html, passage_name, versions_list, verbo
     - `passage_name`: canonical format of Bible book and chapter string
     - `versions_list`: caonincal format of Bible translations list
     """
+    # if verbose, print update
+    if verbose:
+        # print('Scraping text from html.')
+        print 'Scraping text from html.'
+
     translations_long_passage_list = page_html.find_all(class_="passage-text")
 
     # prepare list for translation texts
@@ -190,6 +197,7 @@ def scrape_page_to_latexified_text(page_html, passage_name, versions_list, verbo
         # save to file
         filename = passage_name + versions_list[index] + '.txt'
         if verbose:
+            # print('Writing to ' + filename + '.')
             print 'Writing to ' + filename + '.'
         with open(filename, 'a') as f:
             for paragraph in translation[:-1]:
@@ -197,6 +205,9 @@ def scrape_page_to_latexified_text(page_html, passage_name, versions_list, verbo
                 f.write('\n')
                 f.write('\n')
             f.write(translation[-1].encode('utf8'))
+    if verbose:
+        # print('Done.')
+        print 'Done.'
 
 def scrape_page_to_versified_text(page_html, passage_name, versions_list, verbose):
     """
@@ -255,6 +266,7 @@ def scrape_page_to_versified_text(page_html, passage_name, versions_list, verbos
     # save to file
     filename = passage_name + '.txt'
     if verbose:
+        # print('Writing to ' + filename + '.')
         print 'Writing to ' + filename + '.'
     with open(filename, 'a') as f:
         for paragraph in passage_text:

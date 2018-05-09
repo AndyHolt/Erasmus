@@ -34,6 +34,10 @@ def generate_polyglot(passage, version):
     Requires files of correct name with content to be placed in the
     directory. These should be generated using BibleScraper.py.
     """
+    if verbose:
+        # print('Constructing polyglot...')
+        print 'Constructing polyglot...'
+
     version_list = re.split(r';', version)
     passage_name = re.sub(r'([1-3]*\s*[A-Za-z]{1,3})[A-Za-z]*\s*',
                           r'\1',
@@ -105,9 +109,17 @@ def generate_polyglot(passage, version):
 
     template = polyglot_renderer.get_template('polyglot_template.tex')
 
+    if verbose:
+        # print('Writing to ' + meta['filename'] + '...')
+        print 'Writing to ' + meta['filename'] + '...'
+
     with codecs.open(meta['filename'], mode='w', encoding='utf-8') as f:
         f.write(template.render(meta=meta,
                                 aligned_paragraphs = aligned_paragraphs))
+
+    if verbose:
+        # print('Done.')
+        print 'Done.'
 
 if __name__ == '__main__':
     generate_polyglot_cli()
