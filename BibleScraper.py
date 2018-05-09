@@ -265,7 +265,7 @@ def scrape_page_to_versified_text(page_html, passage_name, versions_list, verbos
 
 
     # save to file
-    filename = passage_name + '.txt'
+    filename = passage_name
     if verbose:
         # print('Writing to ' + filename + '.')
         print 'Writing to ' + filename + '.'
