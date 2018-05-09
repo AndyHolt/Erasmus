@@ -11,6 +11,7 @@ polyglot document for processing by LaTeX.
 
 import re
 import datetime
+import os
 import codecs
 import jinja2
 import click
@@ -108,7 +109,7 @@ def generate_polyglot(passage, version):
                                            trim_blocks = True,
                                            lstrip_blocks = True,
                                            keep_trailing_newline = True,
-                                           loader = jinja2.FileSystemLoader('.'))
+                                           loader = jinja2.FileSystemLoader('/Users/adh/Projects/Erasmus'))
 
     template = polyglot_renderer.get_template('polyglot_template.tex')
 
