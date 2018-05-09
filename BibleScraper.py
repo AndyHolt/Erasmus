@@ -201,10 +201,11 @@ def scrape_page_to_latexified_text(page_html, passage_name, versions_list, verbo
             print 'Writing to ' + filename + '.'
         with open(filename, 'a') as f:
             for paragraph in translation[:-1]:
-                f.write(paragraph.encode('utf8'))
+                f.write(str(paragraph.encode('utf8')))
                 f.write('\n')
                 f.write('\n')
-            f.write(translation[-1].encode('utf8'))
+            f.write(str(translation[-1].encode('utf8')))
+
     if verbose:
         # print('Done.')
         print 'Done.'
