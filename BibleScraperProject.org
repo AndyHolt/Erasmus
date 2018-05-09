@@ -1,0 +1,11 @@
+TODOs:
+  - check use of smallcaps LORD. May need to set explicitly in LaTeX
+  - Greek text needs to be wrapped in babel environment
+  - Add some unit tests
+  - Does using unicode format make things easier? Would it work with XeTeX?
+    
+(less urgent):
+  - more paratext options (include transation footnotes, even cross references)
+  - option for bible database generation
+      Each book has directory, each chapter a file and each verse a line.
+      Useful for searching, word studies, statistical analysis etc
