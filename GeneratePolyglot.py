@@ -20,16 +20,17 @@ import click
 @click.option('-p', '--passage', default='Genesis 1:1',
               help='Bible passage to use.')
 @click.option('-v', '--version', default='ESVUK', help='Translation(s) to use.')
-def generate_polyglot_cli(passage, version):
+@click.option('--verbose', is_flag=True, help='Output status information.')
+def generate_polyglot_cli(passage, version, verbose):
     """Generate a polyglot LaTeX file of PASSAGE in VERSIONS.
 
     Requires files of correct name with content to be placed in the
     directory. These should be generated using BibleScraper.py.
 
     generate_polyglot_cli provides a command line interface to generate_polyglot"""
-    generate_polyglot(passage, version)
+    generate_polyglot(passage, version, verbose)
 
-def generate_polyglot(passage, version):
+def generate_polyglot(passage, version, verbose):
     """Generate a polyglot LaTeX file of PASSAGE in VERSIONS.
     
     Requires files of correct name with content to be placed in the
