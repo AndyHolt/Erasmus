@@ -1,0 +1,45 @@
+#!/usr/local/bin/python
+# -*- coding: utf-8 -*-
+"""
+Erasmus: Bible text tools and polyglots.
+
+CLI runner for Erasmus tools. Create polyglots, get Bible text from BibleGateway
+etc.
+"""
+# Author: Andy Holt
+# Date: Sun 03 Jan 2016 18:27
+
+from BibleScraper import bible_scraper
+from GeneratePolyglot import generate_polyglot
+import click
+
+@click.command()
+@click.option('-p', '--passage', prompt='Enter Bible passage',
+              help='Bible passage to use.')
+@click.option('-v', '--version', prompt='Enter translation(s)',
+              help='Bible translations to use.')
+def erasmus_cli(passage, version):
+    """
+    Create a polyglot. CLI for erasmus.
+    
+    Arguments:
+    - `passage`:
+    - `version`:
+    """
+    erasmus(passage, version)
+
+
+def erasmus(passage, version):
+    """
+    Create a polyglot.
+    
+    Arguments:
+    - `passage`: Passage to polyglot.
+    - `version`: Bible translations.
+    """
+    bible_scraper(passage, version, mode='latex', verbose=True)
+
+    generate_polyglot(passage, version, verbose=True)
+
+if __name__ == '__main__':
+    erasmus_cli()
