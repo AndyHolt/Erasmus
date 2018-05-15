@@ -3,6 +3,19 @@ TODOs:
   - Greek text needs to be wrapped in babel environment
   - Add some unit tests
   - Does using unicode format make things easier? Would it work with XeTeX?
+  - Add a header reference for pages
+    (see Mark printout for a handwritten version)
+    At top of each page, a reference marker showing which verses are on that
+    page for easier reference and finding, especially among longer chapters.
+    Chapter number in large format (a la the chapter numbers in text) and verse
+    numbers smaller.
+    Add a more subtle version for "reader" versions of polyglots, chapters and
+    numbers in smaller text, perhaps greyed and in roman font, rather than
+    sanserif.
+  - Make multi-chapter selections work. May be best to use multiple requests and
+    stitch together at LaTeX level? Or may be able to just get longer sections
+    from Bible Gateway. ALIGNMENT WILL BE AN ISSUE! MAY NEED TO FIND A NEW WAY
+    OF DOING THAT?
     
 (less urgent):
   - more paratext options (include transation footnotes, even cross references)
