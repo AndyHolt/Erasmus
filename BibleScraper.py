@@ -27,7 +27,7 @@ def bible_scraper_cli(passage, version, mode, verbose):
 
     bible_scraper(passage, version, mode, verbose)
 
-def bible_scraper(passage, version, mode, verbose):
+def bible_scraper(passage, version, mode, verbose, book_no=''):
     """
     Get a Bible passage from BibleGateway.com.
 
@@ -39,6 +39,7 @@ def bible_scraper(passage, version, mode, verbose):
     - `passage`: Passage to get from Bible Gateway.
     - `version`: Translation to fetch.
     - `mode`: latex files (for polygot generation) or plain text by verse.
+    - `book_no`: used in referenced-text mode to order files correctly
     """
 
     # fetch html from bible gateway
@@ -52,6 +53,9 @@ def bible_scraper(passage, version, mode, verbose):
         scrape_page_to_latexified_text(page_html, passage_name, versions_list, verbose)
     elif mode == 'text':
         scrape_page_to_versified_text(page_html, passage, versions_list, verbose)
+    elif mode == 'referenced-text':
+        scrape_page_to_referenced_text(page_html, passage, versions_list,
+                                       verbose, book_no)
     else:
         # [todo] - raise an error here
         # print('invalid mode requested.')
@@ -272,6 +276,77 @@ def scrape_page_to_versified_text(page_html, passage_name, versions_list, verbos
     with open(filename, 'a') as f:
         for paragraph in passage_text:
             f.write(paragraph.encode('utf8'))
+
+def scrape_page_to_referenced_text(page_html, passage_name, versions_list,
+                                   verbose, book_no):
+    """
+    Extract passage text from PAGE_HTML and write to text files for use by helm-bible.
+
+    Each chapter should be a single text file, in a directory together with all
+    books. These chapter files can then all be stitched together into one for
+    use by helm-bible as data-entry
+
+    Arguments:
+    - `page_html`: BeautifulSoup object containing html from Bible Gateway
+                   search. Should only pass whole chapter in single
+                   translation.
+    - `passage_name`: canonical format of Bible book and chapter string
+    - `versions_list`: caonincal format of Bible translations list
+    """
+
+    # remove spaces from passage name for saving to file
+    passage_name_no_whitespace = re.sub(r'\s', r'', passage_name, flags=re.UNICODE)
+    passage_name_unfilled_chapno = re.sub(r'([0-9]*\s*[A-Za-z]*)(0*)([1-9])([0-9]*)$',
+                                          r'\1\3\4',
+                                          passage_name,
+                                          flags=re.UNICODE)
+    
+    # get text from html page
+    long_passage = page_html.find(class_="passage-text")
+    passage = long_passage.find_all("p")
+
+    # prepare list for paragraph texts
+    passage_text = []
+
+    # for each paragrah (except last one, which is just copyright statement),
+    # reformat
+    for paragraph in passage[:-1]:
+        # remove crossreferences
+        # [todo] - add crossreferences as optional paratext element
+        ([c.decompose()
+          for c in paragraph.find_all("sup", class_="crossreference")])
+
+        # remove footnotes
+        # [todo] - add footnotes as optional paratext element
+        ([f.decompose()
+          for f in paragraph.find_all("sup", class_="footnote")])
+
+        # set chapter number to 1, since that's the verse number
+        for c in paragraph.find_all(class_="chapternum"):
+            c.string = '{}:1 '.format(passage_name_unfilled_chapno)
+
+        # add newline after each verse
+        for v in paragraph.find_all(class_="versenum"):
+            verse_no = v.string
+            new_verse_string = re.sub(r'([0-9]+)\s',
+                                      r'\n{}:\1: '.format(passage_name_unfilled_chapno),
+                                      verse_no,
+                                      flags=re.UNICODE)
+            v.string = new_verse_string
+
+        # extract text from html
+        passage_text.append(paragraph.get_text())
+
+
+    # save to file
+    filename = book_no + passage_name_no_whitespace
+    if verbose:
+        # print('Writing to ' + filename + '.')
+        print 'Writing to ' + filename + '.'
+    with open(filename, 'a') as f:
+        for paragraph in passage_text:
+            f.write(paragraph.encode('utf8'))
+        f.write('\n')
 
 if __name__ == '__main__':
     bible_scraper_cli()
