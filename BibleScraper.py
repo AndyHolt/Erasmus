@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/local/bin/python3
 """
 Get a Bible passage from Bible Gateway.
 """
@@ -58,8 +58,8 @@ def bible_scraper(passage, version, mode, verbose, book_no=''):
                                        verbose, book_no)
     else:
         # [todo] - raise an error here
-        # print('invalid mode requested.')
-        print 'invalid mode requiested.'
+        print('invalid mode requested.')
+        # print 'invalid mode requiested.'
 
 def fetch_bible_gateway_page(passage, version, verbose):
     """Get a Bible passage from BibleGateway.com.
@@ -77,8 +77,8 @@ def fetch_bible_gateway_page(passage, version, verbose):
 
     # if verbose, say getting passage
     if verbose:
-        # print('Fetching ' + passage + ' from BibleGateway.com.')
-        print 'Fetching ' + passage + ' from BibleGateway.com.'
+        print('Fetching ' + passage + ' from BibleGateway.com.')
+        # print 'Fetching ' + passage + ' from BibleGateway.com.'
 
     # get page html code from biblegateway.com
     options = {'search': passage, 'version': version}
@@ -106,8 +106,8 @@ def scrape_page_to_latexified_text(page_html, passage_name, versions_list, verbo
     """
     # if verbose, print update
     if verbose:
-        # print('Scraping text from html.')
-        print 'Scraping text from html.'
+        print('Scraping text from html.')
+        # print 'Scraping text from html.'
 
     translations_long_passage_list = page_html.find_all(class_="passage-text")
 
@@ -201,8 +201,8 @@ def scrape_page_to_latexified_text(page_html, passage_name, versions_list, verbo
         # save to file
         filename = passage_name + versions_list[index] + '.txt'
         if verbose:
-            # print('Writing to ' + filename + '.')
-            print 'Writing to ' + filename + '.'
+            print('Writing to ' + filename + '.')
+            # print 'Writing to ' + filename + '.'
         with open(filename, 'a') as f:
             for paragraph in translation[:-1]:
                 f.write(str(paragraph.encode('utf8')))
@@ -211,8 +211,8 @@ def scrape_page_to_latexified_text(page_html, passage_name, versions_list, verbo
             f.write(str(translation[-1].encode('utf8')))
 
     if verbose:
-        # print('Done.')
-        print 'Done.'
+        print('Done.')
+        # print 'Done.'
 
 def scrape_page_to_versified_text(page_html, passage_name, versions_list, verbose):
     """
@@ -271,8 +271,8 @@ def scrape_page_to_versified_text(page_html, passage_name, versions_list, verbos
     # save to file
     filename = passage_name
     if verbose:
-        # print('Writing to ' + filename + '.')
-        print 'Writing to ' + filename + '.'
+        print('Writing to ' + filename + '.')
+        # print 'Writing to ' + filename + '.'
     with open(filename, 'a') as f:
         for paragraph in passage_text:
             f.write(paragraph.encode('utf8'))
@@ -323,7 +323,7 @@ def scrape_page_to_referenced_text(page_html, passage_name, versions_list,
 
         # set chapter number to 1, since that's the verse number
         for c in paragraph.find_all(class_="chapternum"):
-            c.string = '{}:1 '.format(passage_name_unfilled_chapno)
+            c.string = '{}:1: '.format(passage_name_unfilled_chapno)
 
         # add newline after each verse
         for v in paragraph.find_all(class_="versenum"):
@@ -341,8 +341,8 @@ def scrape_page_to_referenced_text(page_html, passage_name, versions_list,
     # save to file
     filename = book_no + passage_name_no_whitespace
     if verbose:
-        # print('Writing to ' + filename + '.')
-        print 'Writing to ' + filename + '.'
+        print('Writing to ' + filename + '.')
+        # print 'Writing to ' + filename + '.'
     with open(filename, 'a') as f:
         for paragraph in passage_text:
             f.write(paragraph.encode('utf8'))

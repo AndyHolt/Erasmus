@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 """
 Erasmus: Bible text tools and polyglots.
@@ -20,11 +20,7 @@ import click
               help='Bible translations to use.')
 def erasmus_cli(passage, version):
     """
-    Create a polyglot. CLI for erasmus.
-    
-    Arguments:
-    - `passage`:
-    - `version`:
+    Create a polyglot.
     """
     erasmus(passage, version)
 
